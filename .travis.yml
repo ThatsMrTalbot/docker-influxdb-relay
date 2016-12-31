@@ -1,0 +1,19 @@
+sudo: required
+
+services:
+  - docker
+
+language: go
+
+go:
+  - 1.x
+
+install:
+  - go get -u -d github.com/influxdata/influxdb-relay
+  - docker run --rm -v $GOPATH/src:/go/src -w /go/src/github.com/influxdata/influxdb-relay golang:1.8-alpine go build -v
+  - cp $GOPATH/src/github.com/influxdata/influxdb-relay/influxdb-relay .
+
+after_success:
+  - docker login -u $DOCKER_USER -p $DOCKER_PASS
+  - docker build -t thatsmrtalbot/influxdb-relay:latest .
+  - docker push thatsmrtalbot/influxdb-relay:latest
